@@ -1,0 +1,24 @@
+.user-manager {
+    padding: 20px;
+}
+
+.user-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button {
+    padding: 5px 10px;
+    margin-left: 5px;
+}
