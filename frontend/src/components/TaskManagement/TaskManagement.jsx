@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './TaskManagement.css';
 
-const TaskManager = ({ sortBy, setSortBy }) => {
+const TaskManagement = ({ sortBy, setSortBy }) => {
     const [tasks, setTasks] = useState([]);
     const [taskInput, setTaskInput] = useState('');
     const [deadline, setDeadline] = useState('');
@@ -17,7 +17,7 @@ const TaskManager = ({ sortBy, setSortBy }) => {
 
     const fetchTasks = async () => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/tasks?sortBy=${sortBy}`);
+            const res = await axios.get(`http://localhost:3001/api/task/get-all?sortBy=${sortBy}`);
             setTasks(res.data);
         } catch (error) {
             console.error('Error fetching tasks:', error);
@@ -26,7 +26,7 @@ const TaskManager = ({ sortBy, setSortBy }) => {
 
     const fetchUsers = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/users');
+            const res = await axios.get('http://localhost:3001/api/user/get-all');
             setUsers(res.data);
         } catch (error) {
             console.error('Error fetching users:', error);
@@ -36,11 +36,11 @@ const TaskManager = ({ sortBy, setSortBy }) => {
     const createTask = async (e) => {
         e.preventDefault();
         if (!taskInput || !deadline || !assignedUser) {
-            alert('Vui lòng điền đầy đủ thông tin!');
+            alert('Please fill out all fields!');
             return;
         }
         try {
-            const res = await axios.post('http://localhost:5000/api/tasks', {
+            const res = await axios.post('http://localhost:3001/api/task/create', {
                 text: taskInput,
                 deadline,
                 assignedUser,
@@ -65,11 +65,11 @@ const TaskManager = ({ sortBy, setSortBy }) => {
     const updateTask = async (e) => {
         e.preventDefault();
         if (!taskInput || !deadline || !assignedUser) {
-            alert('Vui lòng điền đầy đủ thông tin!');
+            alert('Please fill out all fields!');
             return;
         }
         try {
-            const res = await axios.put(`http://localhost:5000/api/tasks/${editingTaskId}`, {
+            const res = await axios.put(`http://localhost:3001/api/task/update/${editingTaskId}`, {
                 text: taskInput,
                 deadline,
                 assignedUser,
@@ -86,9 +86,9 @@ const TaskManager = ({ sortBy, setSortBy }) => {
     };
 
     const deleteTask = async (id) => {
-        if (window.confirm('Bạn có chắc muốn xóa nhiệm vụ này?')) {
+        if (window.confirm('Are you sure to delete this task?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/tasks/${id}`);
+                await axios.delete(`http://localhost:3001/api/task/delete/${id}`);
                 setTasks(tasks.filter(task => task._id !== id));
             } catch (error) {
                 console.error('Error deleting task:', error);
@@ -99,7 +99,7 @@ const TaskManager = ({ sortBy, setSortBy }) => {
     const toggleDone = async (id) => {
         try {
             const task = tasks.find(t => t._id === id);
-            const res = await axios.patch(`http://localhost:5000/api/tasks/${id}/toggle`, {
+            const res = await axios.patch(`http://localhost:3001/api/task/toggle-task-done/${id}`, {
                 done: !task.done,
             });
             setTasks(tasks.map(t => t._id === id ? res.data : t));
@@ -120,66 +120,106 @@ const TaskManager = ({ sortBy, setSortBy }) => {
 
     return (
         <div className="task-manager">
-            <h2>Quản lý Nhiệm vụ</h2>
-            <form onSubmit={editingTaskId ? updateTask : createTask} className="task-form">
-                <div className="form-group">
-                    <input
-                        type="text"
-                        value={taskInput}
-                        onChange={(e) => setTaskInput(e.target.value)}
-                        placeholder="Nhập nhiệm vụ"
-                        required
-                    />
+            <div className="card">
+                <div className="card-header">
+                    <h2 className="text-center fw-bold">Task Management</h2>
                 </div>
-                <div className="form-group">
-                    <input
-                        type="datetime-local"
-                        value={deadline}
-                        onChange={(e) => setDeadline(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <select
-                        value={assignedUser}
-                        onChange={(e) => setAssignedUser(e.target.value)}
-                        required
-                    >
-                        <option value="">Chọn người dùng</option>
-                        {users.map(user => (
-                            <option key={user._id} value={user._id}>{user.name}</option>
-                        ))}
-                    </select>
-                </div>
-                <button type="submit">{editingTaskId ? 'Cập nhật' : 'Thêm'} Nhiệm vụ</button>
-                {editingTaskId && <button type="button" onClick={() => setEditingTaskId(null)}>Hủy</button>}
-            </form>
+                <div className="card-body">
+                    <form className="task-form" onSubmit={editingTaskId ? updateTask : createTask}>
+                        <div className="row mb-3">
+                            <div className="col-2">
+                                <label className="form-label fw-bold">Task</label>
+                            </div>
+                            <div className="col-10">
+                                <input
+                                    className="form-control"
+                                    type="text"
+                                    placeholder="Enter task..."
+                                    value={taskInput}
+                                    onChange={(e) => setTaskInput(e.target.value)}
+                                    required
+                                />
+                            </div>
+                        </div>
 
-            <div className="sort-section">
-                <label>Sắp xếp theo: </label>
-                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                    <option value="deadline">Deadline</option>
-                    <option value="done">Trạng thái</option>
-                    <option value="assignedUser">Người dùng</option>
-                </select>
-            </div>
+                        <div className="row mb-3">
+                            <div className="col-2">
+                                <label className="form-label fw-bold">Deadline</label>
+                            </div>
+                            <div className="col-10">
+                                <input
+                                    className="form-control"
+                                    type="datetime-local"
+                                    value={deadline}
+                                    onChange={(e) => setDeadline(e.target.value)}
+                                    required
+                                />
+                            </div>
+                        </div>
 
-            <div className="task-list">
-                {tasks.map(task => (
-                    <div key={task._id} className={`task-item ${getTaskClass(task)}`}>
-                        <span>{task.text} - {new Date(task.deadline).toLocaleString()} - {task.assignedUser.name} - {task.done ? 'Hoàn thành' : 'Chưa hoàn thành'}</span>
-                        <div>
-                            <button onClick={() => editTask(task)}>Sửa</button>
-                            <button onClick={() => deleteTask(task._id)}>Xóa</button>
-                            <button onClick={() => toggleDone(task._id)}>
-                                {task.done ? 'Hoãn' : 'Hoàn thành'}
-                            </button>
+                        <div className="row mb-3">
+                            <div className="col-2">
+                                <label className="form-label fw-bold">Doing by</label>
+                            </div>
+                            <div className="col-10">
+                                <select
+                                    className="form-select"
+                                    value={assignedUser}
+                                    onChange={(e) => setAssignedUser(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Choose user who will do this task...</option>
+                                    {users.map(user => (
+                                        <option key={user._id} value={user._id}>{user.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="d-flex justify-content-start mb-3">
+                            <button type="submit" className="btn btn-success me-2">{editingTaskId ? 'Update' : 'Add'} Task</button>
+                            {editingTaskId && <button className="btn btn-dark" type="button" onClick={() => setEditingTaskId(null)}>Cancel</button>}
+                        </div>
+                    </form>
+
+                    <div className="row mb-3">
+                        <div className="col-2">
+                            <label className="form-label fw-bold">Sort by: </label>
+                        </div>
+                        <div className="col-10">
+                            <select className="form-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                                <option value="deadline">Deadline</option>
+                                <option value="done">Active</option>
+                                <option value="assignedUser">User</option>
+                            </select>
                         </div>
                     </div>
-                ))}
+
+                    <div className="task-list">
+                        {tasks.map(task => (
+                            <div key={task._id} className={`task-item ${getTaskClass(task)}`}>
+                                <input
+                                    type="checkbox"
+                                    className="form-check-input me-2"
+                                    checked={task.done}
+                                    onChange={() => toggleDone(task._id)}
+                                />
+                                <span>{task.text} - {new Date(task.deadline).toLocaleString()} - {task.assignedUser.name} - {task.done ? 'Done' : 'To do'}</span>
+                                <div>
+                                    <button className="btn btn-warning btn-sm me-2" onClick={() => editTask(task)}>
+                                        <i className="bi bi-pencil-square" />
+                                    </button>
+                                    <button className="btn btn-danger btn-sm" onClick={() => deleteTask(task._id)}>
+                                        <i className="bi bi-trash" />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );
 };
 
-export default TaskManager;
+export default TaskManagement;

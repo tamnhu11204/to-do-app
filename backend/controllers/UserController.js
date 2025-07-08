@@ -12,7 +12,7 @@ const createUser = async(req, res)=>{
 
 const updateUser = async(req, res)=>{
     try{
-        const id = req.param
+        const id = req.params.id
         const data = req.body
         const user = await userService.updateUser(id, data)
         res.status(201).json(user)
@@ -32,7 +32,7 @@ const getAllUsers = async (req, res) =>{
 
 const deleteUser = async(req, res) =>{
     try{
-        const id = req.param
+        const id = req.params.id
         const user = await userService.deleteUser(id)
         res.status(201).json(user)
     } catch(error) {

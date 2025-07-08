@@ -1,7 +1,7 @@
 const mongoose=require('mongoose')
 
 const userSchema=new mongoose.Schema({
-    name: {type: String, require: true, unique: true},
+    name: {type: String, required: true, unique: true},
 }, {timestamps: true})
 
-module.export = mongoose.model('User', userSchema)
+module.exports = mongoose.model('User', userSchema)

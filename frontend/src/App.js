@@ -9,18 +9,18 @@ function App() {
 
   return (
     <Router>
-      <div className="app-container">
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
-          <div className="container-fluid">
-            <Link className="navbar-brand" to="/">Task Manager App</Link>
-            <div className="navbar-nav">
-              <Link className="nav-link" to="/tasks">Quản lý Nhiệm vụ</Link>
-              <Link className="nav-link" to="/users">Quản lý Người dùng</Link>
+      <div class="app-container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <div class="container-fluid">
+            <Link class="navbar-brand" to="/">Task Manager App</Link>
+            <div class="navbar-nav">
+              <Link class="nav-link" to="/tasks">Task management</Link>
+              <Link class="nav-link" to="/users">User management</Link>
             </div>
           </div>
         </nav>
 
-        <div className="content">
+        <div class="content">
           <Routes>
             <Route path="/tasks" element={<TaskManager sortBy={sortBy} setSortBy={setSortBy} />} />
             <Route path="/users" element={<UserManager />} />

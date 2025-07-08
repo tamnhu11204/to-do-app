@@ -13,7 +13,7 @@ const UserManager = () => {
 
     const fetchUsers = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/users');
+            const res = await axios.get('http://localhost:3001/api/user/get-all');
             setUsers(res.data);
         } catch (error) {
             console.error('Error fetching users:', error);
@@ -23,11 +23,11 @@ const UserManager = () => {
     const createUser = async (e) => {
         e.preventDefault();
         if (!nameInput) {
-            alert('Vui lòng nhập tên người dùng!');
+            alert('Please enter username!');
             return;
         }
         try {
-            const res = await axios.post('http://localhost:5000/api/users', { name: nameInput });
+            const res = await axios.post('http://localhost:3001/api/user/create', { name: nameInput });
             setUsers([...users, res.data]);
             setNameInput('');
         } catch (error) {
@@ -43,11 +43,11 @@ const UserManager = () => {
     const updateUser = async (e) => {
         e.preventDefault();
         if (!nameInput) {
-            alert('Vui lòng nhập tên người dùng!');
+            alert('Please enter username!');
             return;
         }
         try {
-            const res = await axios.put(`http://localhost:5000/api/users/${editingUserId}`, { name: nameInput });
+            const res = await axios.put(`http://localhost:3001/api/user/update/${editingUserId}`, { name: nameInput });
             setUsers(users.map(u => u._id === editingUserId ? res.data : u));
             setEditingUserId(null);
             setNameInput('');
@@ -57,9 +57,9 @@ const UserManager = () => {
     };
 
     const deleteUser = async (id) => {
-        if (window.confirm('Bạn có chắc muốn xóa người dùng này?')) {
+        if (window.confirm('Are you sure to delete this user?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/users/${id}`);
+                await axios.delete(`http://localhost:3001/api/user/delete/${id}`);
                 setUsers(users.filter(user => user._id !== id));
             } catch (error) {
                 console.error('Error deleting user:', error);
@@ -68,32 +68,50 @@ const UserManager = () => {
     };
 
     return (
-        <div className="user-manager">
-            <h2>Quản lý Người dùng</h2>
-            <form onSubmit={editingUserId ? updateUser : createUser} className="user-form">
-                <div className="form-group">
-                    <input
-                        type="text"
-                        value={nameInput}
-                        onChange={(e) => setNameInput(e.target.value)}
-                        placeholder="Nhập tên người dùng"
-                        required
-                    />
+        <div class="user-manager">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-center fw-bold">User Management</h2>
                 </div>
-                <button type="submit">{editingUserId ? 'Cập nhật' : 'Thêm'} Người dùng</button>
-                {editingUserId && <button type="button" onClick={() => setEditingUserId(null)}>Hủy</button>}
-            </form>
-
-            <div className="user-list">
-                {users.map(user => (
-                    <div key={user._id} className="user-item">
-                        <span>{user.name}</span>
-                        <div>
-                            <button onClick={() => editUser(user)}>Sửa</button>
-                            <button onClick={() => deleteUser(user._id)}>Xóa</button>
+                <div class="card-body">
+                    <form onSubmit={editingUserId ? updateUser : createUser} class="user-form">
+                        <div class="row mb-3">
+                            <div class="col-2">
+                                <label class="form-label fw-bold">Task</label>
+                            </div>
+                            <div class="col-10">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    value={nameInput}
+                                    onChange={(e) => setNameInput(e.target.value)}
+                                    placeholder="Enter username..."
+                                    required
+                                />
+                            </div>
                         </div>
+                        <div class="row mb-3">
+                            <div class="col-2">
+                                <button type="submit" class="btn btn-success mb-3">{editingUserId ? 'Update' : 'Add'} user</button>
+                            </div>
+                            <div class="col-2">
+                                {editingUserId && <button class="btn btn-dark" type="button" onClick={() => setEditingUserId(null)}>Cancel</button>}
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="user-list">
+                        {users.map(user => (
+                            <div key={user._id} class="user-item">
+                                <span>{user.name}</span>
+                                <div>
+                                    <button class="btn btn-warning btn-sm me-2" onClick={() => editUser(user)}><i class="bi bi-pencil-square" /></button>
+                                    <button class="btn btn-danger btn-sm" onClick={() => deleteUser(user._id)}><i class="bi bi-trash" /></button>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
+                </div>
             </div>
         </div>
     );
